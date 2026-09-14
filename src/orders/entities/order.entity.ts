@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { OrderItem } from './orderItem.entity';
+import { PaymentStatus } from 'src/common/enums/payment.enum';
 
 @Entity('orders')
 export class Order {
@@ -22,11 +23,14 @@ export class Order {
   @Column({ name: 'merchant_id' })
   merchantId!: string;
 
+  @Column({ type: 'varchar', length: 3, default: 'ARS' })
+  currency!: string;
+
   @Column('decimal', { precision: 10, scale: 2 })
   total!: number;
 
-  @Column({ default: 'PENDING' })
-  status!: string;
+  @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
+  status!: PaymentStatus;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
