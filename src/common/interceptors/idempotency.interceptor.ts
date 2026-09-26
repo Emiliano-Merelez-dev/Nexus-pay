@@ -6,12 +6,20 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { IdempotencyKey } from 'src/orders/entities/idempotency-key.entity';
-import { Request, Response } from 'express'; // <-- Importamos los tipos de Express
+
+import { Request, Response } from 'express';
+
+interface IdempotentRequestBody extends Record<string, unknown> {
+  merchant_id?: string;
+}
 
 @Injectable()
 export class IdempotencyInterceptor implements NestInterceptor {
@@ -23,12 +31,15 @@ export class IdempotencyInterceptor implements NestInterceptor {
   async intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Promise<Observable<any>> {
+  ): Promise<Observable<unknown>> {
     const ctx = context.switchToHttp();
-
-    // Tipamos explícitamente como Request y Response para que el linter se calme
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
+    const path = request.url;
+
+    if (path.includes('/webhook') || request.method === 'GET') {
+      return next.handle();
+    }
 
     const idempotencyKeyHeader = request.headers['idempotency-key'];
 
@@ -36,23 +47,23 @@ export class IdempotencyInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    // Casteamos el body a un Record o interfaz genérica para evitar el warning de 'any'
-    const body = request.body as Record<string, any>;
-    const merchantId = body?.merchant_id as string;
-    const path = request.url;
+    const idempotencyKey = Array.isArray(idempotencyKeyHeader)
+      ? idempotencyKeyHeader[0]
+      : idempotencyKeyHeader;
 
-    if (!merchantId) {
+    const body = (request.body ?? {}) as IdempotentRequestBody;
+    const merchantId = body.merchant_id;
+
+    if (!merchantId || typeof merchantId !== 'string') {
       throw new HttpException(
-        'Merchant ID is required in the body to process idempotency',
+        'Valid Merchant ID is required in the body for idempotent requests',
         HttpStatus.BAD_REQUEST,
       );
     }
 
     const existingRecord = await this.idempotencyRepo.findOne({
       where: {
-        key: Array.isArray(idempotencyKeyHeader)
-          ? idempotencyKeyHeader[0]
-          : idempotencyKeyHeader,
+        key: idempotencyKey,
         merchant: { id: merchantId },
         path: path,
       },
@@ -64,27 +75,28 @@ export class IdempotencyInterceptor implements NestInterceptor {
     }
 
     return next.handle().pipe(
-      tap((responseBody) => {
-        // Ejecutamos la lógica asíncrona de guardado sin convertir la callback del tap en async y Sé que esto es una promesa asíncrona que corre en segundo plano y decido ignorar su retorno a propósito
+      tap((responseBody: unknown) => {
         void (async () => {
           try {
             const statusCode = response.statusCode;
 
+            if (statusCode >= 400) {
+              return;
+            }
+
             const newRecord = this.idempotencyRepo.create({
-              key: Array.isArray(idempotencyKeyHeader)
-                ? idempotencyKeyHeader[0]
-                : idempotencyKeyHeader,
+              key: idempotencyKey,
               merchant: { id: merchantId },
               path: path,
-              request_payload: request.body as Record<string, any>, // Casteo seguro
+              request_payload: body,
               response_code: statusCode,
-              response_body: responseBody as Record<string, any>, // Casteo seguro
+              response_body: responseBody as Record<string, unknown>,
               created_at: new Date(),
             });
 
             await this.idempotencyRepo.save(newRecord);
           } catch (error) {
-            console.error('Error saving idempotency key:', error);
+            console.error('Error saving idempotency record:', error);
           }
         })();
       }),
