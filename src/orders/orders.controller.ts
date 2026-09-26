@@ -17,7 +17,6 @@ export class OrdersController {
   @Post()
   @UseInterceptors(IdempotencyInterceptor)
   create(@Body() createOrderDto: CreateOrderDto) {
-    console.log('ENTRÓ AL CONTROLLER DE ORDERS');
     return this.ordersService.create(createOrderDto);
   }
 
