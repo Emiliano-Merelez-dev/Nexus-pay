@@ -19,3 +19,10 @@ export enum PaymentStatus {
   DISPUTED = 'disputed',
   FAILED = 'failed',
 }
+
+export enum OrderStatus {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  CANCELLED = 'cancelled',
+  COMPLETED = 'completed',
+}
