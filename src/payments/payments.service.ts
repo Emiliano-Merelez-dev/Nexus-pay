@@ -11,7 +11,7 @@ import { Preference } from 'mercadopago';
 import { Payment } from './entities/payment.entity';
 import { Merchant } from 'src/merchants/entities/merchant.entity';
 import { User } from 'src/users/entities/user.entity';
-import { PaymentStatus } from 'src/common/enums/payment.enum';
+import { OrderStatus, PaymentStatus } from 'src/common/enums/payment.enum';
 import { WebhookPayloadDto } from './dto/create-webhook.dto';
 import { ConfigService } from '@nestjs/config';
 import MercadoPagoConfig from 'mercadopago';
@@ -67,7 +67,7 @@ export class PaymentsService {
       throw new BadRequestException(`user id is not equal`);
     }
 
-    if (order.status === PaymentStatus.CAPTURED) {
+    if (order.status === OrderStatus.COMPLETED) {
       throw new BadRequestException(`order already payed`);
     }
 
@@ -219,7 +219,7 @@ export class PaymentsService {
         payment.status = PaymentStatus.CAPTURED;
 
         if (payment.order) {
-          payment.order.status = PaymentStatus.CAPTURED;
+          payment.order.status = OrderStatus.COMPLETED;
           await this.orderRepository.save(payment.order);
         }
 
@@ -233,7 +233,7 @@ export class PaymentsService {
         payment.status = PaymentStatus.FAILED;
 
         if (payment.order) {
-          payment.order.status = PaymentStatus.FAILED;
+          payment.order.status = OrderStatus.CANCELLED;
           await this.orderRepository.save(payment.order);
         }
       }
