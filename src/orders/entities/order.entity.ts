@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { OrderItem } from './orderItem.entity';
-import { PaymentStatus } from 'src/common/enums/payment.enum';
+import { OrderStatus } from 'src/common/enums/payment.enum';
 
 @Entity('orders')
 export class Order {
@@ -29,8 +29,8 @@ export class Order {
   @Column('decimal', { precision: 10, scale: 2 })
   total!: number;
 
-  @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
-  status!: PaymentStatus;
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
+  status!: OrderStatus;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
