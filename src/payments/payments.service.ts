@@ -7,7 +7,7 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from 'src/orders/entities/order.entity';
 import { Repository } from 'typeorm';
-import { Preference } from 'mercadopago';
+import { Preference, Payment as paymentMP, MerchantOrder } from 'mercadopago';
 import { Payment } from './entities/payment.entity';
 import { Merchant } from 'src/merchants/entities/merchant.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -143,9 +143,7 @@ export class PaymentsService {
         const parts = payload.resource.split('/');
         const merchantOrderId = parts[parts.length - 1];
 
-        const merchantOrderClient = new (
-          await import('mercadopago')
-        ).MerchantOrder(this.mpClient);
+        const merchantOrderClient = new MerchantOrder(this.mpClient);
 
         const merchantOrderInfo = await merchantOrderClient.get({
           merchantOrderId: Number(merchantOrderId),
@@ -167,9 +165,7 @@ export class PaymentsService {
       }
 
       if (paymentId && !orderIdFromWebhook) {
-        const paymentClient = new (await import('mercadopago')).Payment(
-          this.mpClient,
-        );
+        const paymentClient = new paymentMP(this.mpClient);
 
         const mpPaymentInfo = await paymentClient.get({
           id: paymentId,
