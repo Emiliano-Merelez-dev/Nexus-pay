@@ -6,7 +6,7 @@ import { In, Repository } from 'typeorm';
 import { Product } from 'src/products/entities/product.entity';
 import { Merchant } from 'src/merchants/entities/merchant.entity';
 import { OrderItem } from './entities/orderItem.entity';
-import { PaymentStatus } from 'src/common/enums/payment.enum';
+import { OrderStatus } from 'src/common/enums/payment.enum';
 
 @Injectable()
 export class OrdersService {
@@ -52,7 +52,7 @@ export class OrdersService {
         userId: user_id,
         merchantId: merchant_id,
         total,
-        status: PaymentStatus.PENDING,
+        status: OrderStatus.PENDING,
       });
 
       const saveOrder = await queryRunner.manager.save(order);
@@ -82,7 +82,7 @@ export class OrdersService {
   }
 
   findAll() {
-    return `This action returns all orders`;
+    return this.orderRepository.find({});
   }
 
   findOne(id: string) {
