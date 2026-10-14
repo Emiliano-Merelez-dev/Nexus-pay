@@ -71,6 +71,19 @@ export class PaymentsService {
       throw new BadRequestException(`order already payed`);
     }
 
+    const existingPendingPayment = await this.paymentRepository.findOne({
+      where: {
+        order: { id: order_id },
+        status: PaymentStatus.PENDING,
+      },
+    });
+
+    if (existingPendingPayment) {
+      throw new BadRequestException(
+        'This order already has a payment in progress. Complete or cancel it before trying again.',
+      );
+    }
+
     const preference = new Preference(this.mpClient);
 
     const mpResponse = await preference.create({
