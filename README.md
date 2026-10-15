@@ -35,6 +35,10 @@ The project focuses on transactional integrity, data consistency, idempotent req
 
 ## 🗄️ Database Architecture
 
+<p align="center">
+  <img src="././public/Data-base-diagram.png" alt="Database Relational Model" width="85%" />
+</p>
+
 The relational schema models the main entities involved in the payment lifecycle.
 
 | Entity             | Responsibility                                                       |
