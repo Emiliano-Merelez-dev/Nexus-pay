@@ -75,6 +75,9 @@ jobs:
           MP_WEBHOOK_SECRET=${{ env.MP_WEBHOOK_SECRET }}
           EOF
 
+      - name: Run database migrations
+        run: npm run migration:run
+
       - name: Build application
         run: npm run build
 
