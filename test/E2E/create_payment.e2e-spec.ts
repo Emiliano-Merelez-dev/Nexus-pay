@@ -1,6 +1,8 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
+import { Preference } from 'mercadopago';
+import { afterEach, jest } from '@jest/globals';
 import { AppModule } from 'src/app.module';
 import { Server } from 'http';
 import { seedE2EData } from '../helpers/seed-e2e';
@@ -75,6 +77,10 @@ describe('Payments - Create payment (e2e)', () => {
     await app.close();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should return status 400 when payment data is invalid', async () => {
     const response = await request(app.getHttpServer() as Server)
       .post('/payments')
@@ -124,6 +130,14 @@ describe('Payments - Create payment (e2e)', () => {
       payment_method: 'credit_card',
       provider: 'mercado_pago',
     };
+
+    jest.spyOn(Preference.prototype, 'create').mockResolvedValue({
+      id: 'PREF-E2E-123456',
+      init_point:
+        'https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=PREF-E2E-123456',
+      sandbox_init_point:
+        'https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=PREF-E2E-123456',
+    } as unknown as Awaited<ReturnType<Preference['create']>>);
 
     const response = await request(app.getHttpServer() as Server)
       .post('/payments')
