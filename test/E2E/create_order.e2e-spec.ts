@@ -3,7 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from 'src/app.module';
 import { Server } from 'http';
 import request from 'supertest';
-import { seedE2EData } from 'test/helpers/seed-e2e';
+import { seedE2EData } from '../helpers/seed-e2e';
 
 interface ErrorResponse {
   message: string | string[];

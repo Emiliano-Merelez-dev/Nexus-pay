@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { Server } from 'http';
-import { seedE2EData } from 'test/helpers/seed-e2e';
+import { seedE2EData } from '../helpers/seed-e2e';
 
 interface OrderResponse {
   id: string;

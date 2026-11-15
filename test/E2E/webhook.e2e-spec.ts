@@ -21,7 +21,7 @@ import {
   it,
   jest,
 } from '@jest/globals';
-import { seedE2EData } from 'test/helpers/seed-e2e';
+import { seedE2EData } from '../helpers/seed-e2e';
 
 type MercadoPagoPaymentResponse = Awaited<ReturnType<MPPayment['get']>>;
 
