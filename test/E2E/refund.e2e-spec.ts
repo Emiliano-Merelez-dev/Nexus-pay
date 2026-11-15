@@ -107,7 +107,9 @@ describe('Refunds (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   async function markPaymentAsCaptured(): Promise<void> {
