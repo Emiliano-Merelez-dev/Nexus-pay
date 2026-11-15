@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { Server } from 'http';
+import { seedE2EData } from 'test/helpers/seed-e2e';
 
 interface OrderResponse {
   id: string;
@@ -58,6 +59,7 @@ describe('Payments - Create payment (e2e)', () => {
       new ValidationPipe({ whitelist: true, transform: true }),
     );
     await app.init();
+    await seedE2EData(app);
 
     const setupResponse = await request(app.getHttpServer() as Server)
       .post('/orders')

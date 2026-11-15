@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from 'src/app.module';
 import { Server } from 'http';
 import request from 'supertest';
+import { seedE2EData } from 'test/helpers/seed-e2e';
 
 interface ErrorResponse {
   message: string | string[];
@@ -45,6 +46,7 @@ describe('Orders - create and idempotencia (e2e)', () => {
     );
 
     await app.init();
+    await seedE2EData(app);
   });
 
   afterAll(async () => {

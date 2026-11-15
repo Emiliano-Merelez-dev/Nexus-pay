@@ -21,6 +21,7 @@ import {
   it,
   jest,
 } from '@jest/globals';
+import { seedE2EData } from 'test/helpers/seed-e2e';
 
 type MercadoPagoPaymentResponse = Awaited<ReturnType<MPPayment['get']>>;
 
@@ -60,6 +61,7 @@ describe('Payments - Webhook (e2e)', () => {
     );
 
     await app.init();
+    await seedE2EData(app);
   });
 
   beforeEach(async () => {

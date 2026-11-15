@@ -22,6 +22,7 @@ import { LedgerEntry } from 'src/ledger_entries/entities/ledger_entry.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Payment } from 'src/payments/entities/payment.entity';
 import { Refund } from 'src/refunds/entities/refund.entity';
+import { seedE2EData } from 'test/helpers/seed-e2e';
 
 describe('Refunds (e2e)', () => {
   let app: INestApplication;
@@ -66,6 +67,7 @@ describe('Refunds (e2e)', () => {
     );
 
     await app.init();
+    await seedE2EData(app);
   });
 
   beforeEach(async () => {
